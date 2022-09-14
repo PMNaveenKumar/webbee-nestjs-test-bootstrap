@@ -2,6 +2,7 @@ import { Repository } from 'typeorm';
 import { Get, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Event } from './entities/event.entity';
+import moment from 'moment';
 
 @Injectable()
 export class EventsService {
@@ -92,7 +93,7 @@ export class EventsService {
 
   @Get('events')
   async getEventsWithWorkshops() {
-    return this.eventRepository.createQueryBuilder('event')
+    return await this.eventRepository.createQueryBuilder('event')
                                        .leftJoinAndSelect('event.workshops', 'workshop')
                                        .getMany();
   }
@@ -164,6 +165,9 @@ export class EventsService {
      */
   @Get('futureevents')
   async getFutureEventWithWorkshops() {
-    throw new Error('TODO task 2');
+    return await this.eventRepository.createQueryBuilder('event')
+                                       .leftJoinAndSelect('event.workshops', 'workshop')
+                                       .where('workshop.start > :date_today', { date_today: moment().format('YYYY-MM-DD hh:mm:ss') })
+                                       .getMany();
   }
 }

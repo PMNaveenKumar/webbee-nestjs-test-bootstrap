@@ -12,6 +12,6 @@ export class Event {
   @Column({ type: 'datetime' })
   createdAt: string;
 
-  @OneToMany(() => Workshop, (workshop) => workshop.event))
+  @OneToMany(() => Workshop, (workshop) => workshop.event)
   workshops: Workshop[];
 }
