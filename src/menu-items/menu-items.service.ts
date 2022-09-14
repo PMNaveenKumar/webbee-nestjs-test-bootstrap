@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { MenuItem } from './entities/menu-item.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { getConnection, Repository } from 'typeorm';
 
 @Injectable()
 export class MenuItemsService {
@@ -83,7 +83,34 @@ export class MenuItemsService {
         }
     ]
   */
+ private async convertToChildren(array: any){
+        var map: any = {}
+        for(var i = 0; i < array.length; i++){
+            var obj = array[i]
+            if(!(obj.Id in map)){
+                map[obj.Id] = obj
+                map[obj.Id].children = []
+            }
+
+            if(typeof map[obj.Id].Name == 'undefined'){
+                map[obj.Id].Id = obj.Id
+                map[obj.Id].Name = obj.Name
+                map[obj.Id].attr = obj.attr
+                map[obj.Id].parentId= obj.parentId
+            }
+
+            var parent = obj.parentId || '-';
+            if(!(parent in map)){
+                map[parent] = {}
+                map[parent].children = []
+            }
+
+            map[parent].children.push(map[obj.Id])
+        }
+        return map['-'];
+    }
+
   async getMenuItems() {
-    throw new Error('TODO in task 3');
+      await this.menuItemRepository.metadata.connection.getTreeRepository(MenuItem).findTrees();
   }
 }
